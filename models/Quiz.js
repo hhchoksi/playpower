@@ -1,0 +1,69 @@
+import mongoose from "mongoose";
+
+const QuestionSchema = new mongoose.Schema({
+  questionId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  question: {
+    type: String,
+    required: true
+  },
+  options: {
+    type: [String],
+    required: true,
+    validate: [arrayLimit, '{PATH} must have exactly 4 options']
+  },
+  correctAnswer: {
+    type: String,
+    required: true,
+    enum: ['A', 'B', 'C', 'D']
+  }
+});
+
+function arrayLimit(val) {
+  return val.length === 4;
+}
+
+const QuizSchema = new mongoose.Schema({
+  quizId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  grade: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 12
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  totalQuestions: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  maxScore: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  difficulty: {
+    type: String,
+    required: true,
+    enum: ['EASY', 'MEDIUM', 'HARD']
+  },
+  questions: [QuestionSchema],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Quiz = mongoose.model('quiz', QuizSchema);
+
+export default Quiz;
