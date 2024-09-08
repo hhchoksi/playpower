@@ -1,11 +1,22 @@
 import { generateText } from "../utils/groqModel.js";
 import Quiz from "../models/Quiz.js";
-import * as crypto from 'crypto';
+import crypto from "crypto";
+import { setJSON } from "../controllers/redisFunctions.js";
+
+const createQuizId = (grade, subject, difficulty, maxScore) => {
+  const gradeStr = String(grade).replace(/\s/g, "");
+  const subjectStr = String(subject).replace(/\s/g, "");
+  const difficultyStr = String(difficulty).replace(/\s/g, "");
+  const maxScoreStr = String(maxScore).replace(/\s/g, "");
+  const combinedString = `${gradeStr}-${subjectStr}-${difficultyStr}-${maxScoreStr}`;
+  const hash = crypto.createHash("sha256").update(combinedString).digest("hex");
+  return hash.slice(0, 16);
+};
 
 export const generateQuiz = async (req, res) => {
-    const { grade, subject, totalQuestions, maxScore, difficulty } = req.body;
+  const { grade, subject, totalQuestions, maxScore, difficulty } = req.body;
 
-    const prompt = `Generate a ${subject} quiz for grade ${grade} with ${totalQuestions} questions. 
+  const prompt = `Generate a ${subject} quiz for grade ${grade} with ${totalQuestions} questions. 
         Difficulty: ${difficulty}. Maximum score: ${maxScore}. 
         Format the response as a JSON array of questions with the following structure:
         [
@@ -16,37 +27,40 @@ export const generateQuiz = async (req, res) => {
             }
         ]`;
 
-    try {
-        const result = await generateText(prompt, {});
-        console.log("AI Output:", result);
-
-        const quizData = {
-            quizId: crypto.randomBytes(32).toString("hex"),
-            grade,
-            subject,
-            totalQuestions,
-            maxScore,
-            difficulty,
-            questions: result.map(q => ({
-                questionId: crypto.randomBytes(32).toString("hex"),
-                ... q
-            }))
-        };
-
-        const newQuiz = await Quiz.create(quizData);
-
-        return res.status(201).json({
-            success: true,
-            message: 'Quiz generated successfully',
-            quiz: newQuiz
-        });
-    } 
-    catch (error) {
-        return res.status(500).json({
-            error: error.message,
-            success: false,
-            message: 'Failed to generate quiz'
-        });
-    }
+  try {
+    const result = await generateText(prompt, {});
+    console.log("Answer Result :",result);
     
+    const QuizId = createQuizId(grade, subject, maxScore, difficulty);
+    const quizData = {
+      quizId: QuizId,
+      grade,
+      subject,
+      totalQuestions,
+      maxScore,
+      difficulty,
+      questions: result.map((q) => ({
+        questionId: QuizId,
+        ...q,
+      })),
+    };
+
+    const newQuiz = await Quiz.create(quizData);
+    await setJSON(QuizId, quizData,process.env.TTL_Quiz);
+   
+
+    console.log(newQuiz)
+    return res.status(201).json({
+      success: true,
+      message: "Quiz generated successfully",
+      quiz: newQuiz,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+      success: false,
+      message: "Failed to generate quiz",
+    });
+  }
 };
