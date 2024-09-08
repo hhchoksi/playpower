@@ -4,9 +4,9 @@ import User from '../models/User.js';
 
 export const signUp = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, email } = req.body;
 
-        if(!username || !password) {
+        if(!username || !password || !email) {
             return res.status(400).json({ error: 'Please fill all fields' });
         }
 
