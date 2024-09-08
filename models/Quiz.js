@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Question Schema
 const QuestionSchema = new mongoose.Schema({
   questionId: {
     type: String,
@@ -26,6 +27,10 @@ function arrayLimit(val) {
   return val.length === 4;
 }
 
+// Creating the Question model
+const Question = mongoose.model('Question', QuestionSchema);
+
+// Quiz Schema
 const QuizSchema = new mongoose.Schema({
   quizId: {
     type: String,
@@ -57,13 +62,10 @@ const QuizSchema = new mongoose.Schema({
     required: true,
     enum: ['EASY', 'MEDIUM', 'HARD']
   },
-  questions: [QuestionSchema],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  questions: [QuestionSchema]
 });
 
+// Creating the Quiz model
 const Quiz = mongoose.model('Quiz', QuizSchema);
 
 export default Quiz;
