@@ -14,12 +14,9 @@ const createQuizId = (grade, subject, difficulty, maxScore) => {
 };
 
 export const generateQuiz = async (req, res) => {
-  try {
-    const { grade, subject, totalQuestions, maxScore, difficulty } = req.body;
-   
-    
+  const { grade, subject, totalQuestions, maxScore, difficulty } = req.body;
 
-    const prompt = `Generate a ${subject} quiz for grade ${grade} with ${totalQuestions} questions. 
+  const prompt = `Generate a ${subject} quiz for grade ${grade} with ${totalQuestions} questions. 
         Difficulty: ${difficulty}. Maximum score: ${maxScore}. 
         Format the response as a JSON array of questions with the following structure:
         [
@@ -31,26 +28,37 @@ export const generateQuiz = async (req, res) => {
         ]`;
 
   try {
-    const result = await generateText(prompt, {});
-    console.log("Answer Result :",result);
-    
+    const text = await generateText(prompt, {});
+    let result;
+
+    try {
+      const jsonStart = text.indexOf("[");
+      const jsonEnd = text.lastIndexOf("]") + 1;
+
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        const jsonString = text.substring(jsonStart, jsonEnd);
+        result = JSON.parse(jsonString);
+      }
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+    }
     const QuizId = createQuizId(grade, subject, maxScore, difficulty);
     const quizData = {
-      quizId,
+      quizId: QuizId,
       grade,
       subject,
       totalQuestions,
       maxScore,
       difficulty,
-      questions, // Use the questions array with questionId
+      questions: result.map((q) => ({
+        questionId: QuizId,
+        ...q,
+      })),
     };
-    console.log(quizData);
-    // Step 6: Save the quiz data to MongoDB
-    const newQuiz = await Quiz.create(quizData);
-    await setJSON(QuizId, quizData,process.env.TTL_Quiz);
-   
 
-    // Step 8: Return success response
+    const newQuiz = await Quiz.create(quizData);
+    await setJSON(QuizId, quizData, process.env.TTL_Quiz);
+
     return res.status(201).json({
       success: true,
       message: "Quiz generated successfully",

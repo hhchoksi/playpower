@@ -46,7 +46,7 @@ export const del = async (key) => {
 
 export const getJSON = async (key) => {
   try {
-    const jsonData = await client.json.get(key);
+    const jsonData = await redisClient.json.get(key);
     return jsonData;
   } catch (error) {
     console.error("Error retrieving JSON from Redis:", error);
@@ -56,7 +56,7 @@ export const getJSON = async (key) => {
 
 export const delJSON = async (key) => {
   try {
-    const result = await client.json.del(key, ".");
+    const result = await redisClient.json.del(key, ".");
     if (result === 1) {
       console.log(`JSON data with key '${key}' deleted successfully.`);
 
@@ -84,8 +84,8 @@ export const delJSON = async (key) => {
 
 export const setJSON = async (key, data, ttl) => {
   try {
-    await client.json.set(key, ".", data);
-    await client.expire(key, ttl);
+    await redisClient.json.set(key, ".", data);
+    await redisClient.expire(key, ttl);
 
     console.log(
       `JSON data set with key '${key}' and TTL ${ttl} seconds successfully.`

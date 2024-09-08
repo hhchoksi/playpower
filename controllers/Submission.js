@@ -11,8 +11,7 @@ export const Submission = async (req, res) => {
     try {
         const quiz = await Quiz.findOne({ quizId });
         const user = await User.findById(userId);
-        console.log(user);
-
+        
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
