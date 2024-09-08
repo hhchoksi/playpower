@@ -31,6 +31,7 @@ export const signUp = async (req, res) => {
         const newUser = await User.create({
             username: username,
             password: hashedPassword,
+            email: email
         });
 
         await set(username, "User Exists", process.env.TTL_SignUp);

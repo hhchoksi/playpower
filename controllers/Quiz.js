@@ -28,9 +28,24 @@ export const generateQuiz = async (req, res) => {
         ]`;
 
   try {
-    const result = await generateText(prompt, {});
-    console.log("Answer Result :",result);
-    
+    const text = await generateText(prompt, {});
+    let result;
+
+    try {
+      const jsonStart = text.indexOf("[");
+      const jsonEnd = text.lastIndexOf("]") + 1;
+
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        const jsonString = text.substring(jsonStart, jsonEnd);
+        console.log("Extracted JSON:", result);
+        result = JSON.parse(jsonString);
+      }
+    } 
+    catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+    }
+    console.log("Answer Result :", result);
+
     const QuizId = createQuizId(grade, subject, maxScore, difficulty);
     const quizData = {
       quizId: QuizId,
@@ -46,8 +61,8 @@ export const generateQuiz = async (req, res) => {
     };
 
     const newQuiz = await Quiz.create(quizData);
-    await setJSON(QuizId, quizData,process.env.TTL_Quiz);
-   
+    await setJSON(QuizId, quizData, process.env.TTL_Quiz);
+
 
     console.log(newQuiz)
     return res.status(201).json({

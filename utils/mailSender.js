@@ -3,15 +3,18 @@ import { createTransport } from "nodemailer";
 const mailSender = async(email, subject, message) => {
     try {
         const transporter = createTransport({
-            service: 'gmail',
+            service: "Gmail",
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
             auth: {
-                user: process.env.EMAIL_ADDRESS,
-                pass: process.env.EMAIL_PASSWORD
+                user: 'hhchoksi.976@gmail.com',
+                pass: 'rqwdwngpphnryebp'
             }
         });
         
         const info = await transporter.sendMail({
-            from: process.env.EMAIL_ADDRESS,
+            from: 'hhchoksi.976@gmail.com',
             to: email,
             subject,
             text: message,
