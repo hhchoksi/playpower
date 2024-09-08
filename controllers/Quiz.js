@@ -30,20 +30,11 @@ export const generateQuiz = async (req, res) => {
             }
         ]`;
 
+  try {
     const result = await generateText(prompt, {});
-    const quizId = createQuizId(grade, subject, difficulty, maxScore); // Corrected parameter order
-
-    const createQuestionId = () => {
-      return crypto.randomBytes(8).toString("hex");
-    };
-    const questions = result.map((q) => ({
-      questionId: createQuestionId(), // Generate a unique questionId for each question
-      question: q.question,
-      options: q.options,
-      correctAnswer: q.correctAnswer,
-    }));
-
-    // Step 5: Construct quiz data object
+    console.log("Answer Result :",result);
+    
+    const QuizId = createQuizId(grade, subject, maxScore, difficulty);
     const quizData = {
       quizId,
       grade,
@@ -56,9 +47,8 @@ export const generateQuiz = async (req, res) => {
     console.log(quizData);
     // Step 6: Save the quiz data to MongoDB
     const newQuiz = await Quiz.create(quizData);
-
-    // Step 7: Save the quiz data to Redis
-    await setJSON(quizId, quizData, process.env.TTL_Quiz);
+    await setJSON(QuizId, quizData,process.env.TTL_Quiz);
+   
 
     // Step 8: Return success response
     return res.status(201).json({
