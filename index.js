@@ -1,10 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import authRoutes from "./routes/auth.route.js";
-import quizRoutes from "./routes/quiz.route.js";
-import  connectAndLogRedisStatus from "./config/redisController.js"; // Import Redis connection
-import  connectDBandLogDB  from "./config/database.js";  // Import DB connection
+import authRoutes from "./routes/authRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js";
+import  connectAndLogRedisStatus from "./config/redisConfig.js"; // Import Redis connection
+import  connectDBandLogDB  from "./config/dbConfig.js";  // Import DB connection
 
 const app = express();
 dotenv.config();

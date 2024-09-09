@@ -8,7 +8,7 @@ const mailSender = async(email, subject, message) => {
             port: 465,
             secure: true,
             auth: {
-                user: 'hhchoksi.976@gmail.com',
+                user: 'hhchoksi.976@gmail.com', 
                 pass: 'rqwdwngpphnryebp'
             }
         });

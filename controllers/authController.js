@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import User from "../models/User.js";
-import { set, get, del } from "../controllers/redisFunctions.js";
+import User from "../models/userSchema.js";
+import { set, get, del } from "./redisController.js";
 import e from "express";
 
 export const signUp = async (req, res) => {

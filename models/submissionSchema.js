@@ -4,12 +4,14 @@ const submissionSchema = new mongoose.Schema({
     quizId: {
         type: String,
         ref: 'Quiz',
-        required: true
+        required: true,
+        index: true
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        index: true
     },
     responses: [{
         question: {
@@ -33,9 +35,10 @@ const submissionSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
-    createdAt: {
+    completedAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: true 
     }
 });
 

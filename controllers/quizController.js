@@ -1,7 +1,7 @@
 import { generateText } from "../utils/groqModel.js";
-import Quiz from "../models/Quiz.js";
+import Quiz from "../models/quizSchema.js";
 import crypto from "crypto";
-import { setJSON } from "../controllers/redisFunctions.js";
+import { setJSON } from "./redisController.js";
 
 const createQuizId = (grade, subject, difficulty, maxScore) => {
   const gradeStr = String(grade).replace(/\s/g, "");
@@ -51,7 +51,7 @@ export const generateQuiz = async (req, res) => {
       maxScore,
       difficulty,
       questions: result.map((q) => ({
-        questionId: QuizId,
+        questionId: crypto.randomBytes(32).toString("hex"),
         ...q,
       })),
     };
